@@ -6,9 +6,12 @@
 #include <string>
 #include <vector>
 #include <stack>
+#include <list>
 #include <map>
 #include <fstream>
 #include <sstream>
+
+void bStarTreeCoor(block* root);
 
 using std::cout;
 using std::endl;
@@ -117,29 +120,14 @@ int main(int argc, char* argv[]){
 		// cout << (*it)->name << " " << (*it)->width << " " << (*it)->height << endl;
 	// }
 	
-	block b1("b1", 90, 20), b2("b2", 20, 40), b3("b3", 40, 60), b4("b4", 50, 30);
+	block b1("b1", 90, 20), b2("b2", 20, 40), b3("b3", 40, 60), b4("b4", 60, 30), b5("b5", 110, 10), b6("b6", 30, 30);
 	allBlock[3]->rightChild = &b1;
 	b1.leftChild = &b2;
 	b1.rightChild = &b3;
 	b3.leftChild = &b4;
-
-	block* current;
-	std::stack<block*> unvisited;
-	unvisited.push(root);
-	root->xCoor = 0;
-	while(!unvisited.empty()){
-		current = (unvisited.top());
-		unvisited.pop();
-		if(current->rightChild != NULL){
-			current->rightChild->xCoor = current->xCoor;
-			unvisited.push(current->rightChild);
-		}
-		if(current->leftChild != NULL){
-			current->leftChild->xCoor = current->xCoor + current->width;
-			unvisited.push(current->leftChild);
-		}
-		cout << current->name << " " << current->xCoor << endl;
-	}
+	allBlock[1]->rightChild = &b5;
+	b5.leftChild = &b6;
+	bStarTreeCoor(root);
 	
 	// int count = 0;
 	// block* ptr = root;
@@ -160,3 +148,72 @@ int main(int argc, char* argv[]){
 	return 0;
 }
 
+void bStarTreeCoor(block* root){
+	block* current;
+	std::stack<block*> unvisited;
+	unvisited.push(root);
+	root->xCoor = 0;
+	std::list<std::pair<int, int> > contour;
+	contour.push_back(std::pair<int, int>(0, 0));
+	std::list<std::pair<int, int> >::iterator it = contour.begin();
+	
+	while(!unvisited.empty()){
+		current = (unvisited.top());
+		unvisited.pop();
+		if(current->rightChild != NULL){
+			current->rightChild->xCoor = current->xCoor;
+			unvisited.push(current->rightChild);
+		}
+		if(current->leftChild != NULL){
+			current->leftChild->xCoor = current->xCoor + current->width;
+			unvisited.push(current->leftChild);
+		}
+
+		while(it == contour.end() || it->first > current->xCoor) --it;
+		std::list<std::pair<int, int> >::iterator tmpIt = it;
+		int maxY = it->second, currentRightX = current->xCoor + current->width;
+		while(tmpIt != contour.end() && tmpIt->first < currentRightX){ // tmpIt->first = list x
+			if(tmpIt->second > maxY) maxY = tmpIt->second;
+			tmpIt++;
+		}
+
+		if(it != contour.begin() && (--it)->second == maxY + current->height){
+			it = contour.erase(++it);
+			it--;
+		}
+		else if(it->first != current->xCoor){
+			contour.insert(++it, std::pair<int, int>(current->xCoor, maxY + current->height));
+			it--;
+		}
+		else{
+			it->second = maxY + current->height;
+		}
+		contour.insert(++it, std::pair<int, int>(currentRightX, maxY));
+			cout << "List: ";
+			for(tmpIt = contour.begin(); tmpIt != contour.end(); tmpIt++){
+				cout << "(" << tmpIt->first << "," << tmpIt->second << ")";
+			}
+			cout << endl;
+			cout << "Iter: (" << it->first << "," << it->second << ") " << endl;
+		tmpIt = it;
+		while(tmpIt != contour.end() && tmpIt->first <= currentRightX){
+			contour.erase(tmpIt++);
+		}
+		current->yCoor = maxY;
+			
+			cout << "List: ";
+			for(tmpIt = contour.begin(); tmpIt != contour.end(); tmpIt++){
+				cout << "(" << tmpIt->first << "," << tmpIt->second << ") ";
+			}
+			cout << endl;
+			// cout << "(" << it->first << "," << it->second << ") " << endl;
+			// cout << endl;
+			cout << current->name << " " << current->xCoor << " " << current->yCoor << endl;
+	}
+			// for(it = contour.begin(); it != contour.end(); it++){
+				// cout << "(" << it->first << "," << it->second << ") ";
+			// }
+			// cout << endl;
+	
+	return void();
+}
