@@ -120,11 +120,16 @@ int main(int argc, char* argv[]){
 		// cout << (*it)->name << " " << (*it)->width << " " << (*it)->height << endl;
 	// }
 	
-	block b1("b1", 90, 20), b2("b2", 20, 40), b3("b3", 40, 60), b4("b4", 60, 30), b5("b5", 110, 10), b6("b6", 30, 30);
+	block b1("b1", 90, 20), b2("b2", 20, 40), b3("b3", 40, 60), b4("b4", 60, 30), b5("b5", 110, 10), b6("b6", 30, 80);
+	block b7("b7", 50, 20), b8("b8", 40, 40), b9("b9", 40, 40), b10("b10", 40, 40);
 	allBlock[3]->rightChild = &b1;
 	b1.leftChild = &b2;
 	b1.rightChild = &b3;
+	b2.leftChild = &b10;
 	b3.leftChild = &b4;
+	b4.leftChild = &b7;
+	b7.leftChild = &b8;
+	b8.leftChild = &b9;
 	allBlock[1]->rightChild = &b5;
 	b5.leftChild = &b6;
 	bStarTreeCoor(root);
@@ -171,7 +176,7 @@ void bStarTreeCoor(block* root){
 
 		while(it == contour.end() || it->first > current->xCoor) --it;
 		std::list<std::pair<int, int> >::iterator tmpIt = it;
-		int maxY = it->second, currentRightX = current->xCoor + current->width;
+		int maxY = 0, currentRightX = current->xCoor + current->width;
 		while(tmpIt != contour.end() && tmpIt->first < currentRightX){ // tmpIt->first = list x
 			if(tmpIt->second > maxY) maxY = tmpIt->second;
 			tmpIt++;
@@ -189,23 +194,20 @@ void bStarTreeCoor(block* root){
 			it->second = maxY + current->height;
 		}
 		contour.insert(++it, std::pair<int, int>(currentRightX, maxY));
-			cout << "List: ";
-			for(tmpIt = contour.begin(); tmpIt != contour.end(); tmpIt++){
-				cout << "(" << tmpIt->first << "," << tmpIt->second << ")";
-			}
-			cout << endl;
-			cout << "Iter: (" << it->first << "," << it->second << ") " << endl;
-		tmpIt = it;
+
+		tmpIt = it--;
 		while(tmpIt != contour.end() && tmpIt->first <= currentRightX){
+			it->second = tmpIt->second;
 			contour.erase(tmpIt++);
 		}
 		current->yCoor = maxY;
 			
-			cout << "List: ";
-			for(tmpIt = contour.begin(); tmpIt != contour.end(); tmpIt++){
-				cout << "(" << tmpIt->first << "," << tmpIt->second << ") ";
-			}
-			cout << endl;
+			// cout << "List: ";
+			// for(tmpIt = contour.begin(); tmpIt != contour.end(); tmpIt++){
+				// cout << "(" << tmpIt->first << "," << tmpIt->second << ")";
+			// }
+			// cout << endl;
+			// cout << "Iter: (" << it->first << "," << it->second << ") " << endl;
 			// cout << "(" << it->first << "," << it->second << ") " << endl;
 			// cout << endl;
 			cout << current->name << " " << current->xCoor << " " << current->yCoor << endl;
